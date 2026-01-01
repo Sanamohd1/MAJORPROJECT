@@ -120,9 +120,9 @@ async function startServer() {
         // =====================
         // 404 HANDLER
         // =====================
-        app.all("*path", (req, res, next) => {
-            next(new ExpressError(404, "Page not found"));
-        });
+       app.all("*path", (req, res) => {
+    res.redirect("/listings"); 
+});
 
         // =====================
         // GLOBAL ERROR HANDLER

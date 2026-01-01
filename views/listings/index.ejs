@@ -81,7 +81,12 @@
 
   <% if (allListings && allListings.length > 0) { %>
 
-    <% for (let listing of allListings) { %>
+    <% if (allListings && allListings.length > 0) { %>
+    <% for(let listing of allListings) { %>
+        <% } %>
+<% } else { %>
+    <p>No listings found.</p>
+<% } %>
       <a href="/listings/<%= listing._id %>" class="listing-link">
         <div class="card col listing-card">
 
