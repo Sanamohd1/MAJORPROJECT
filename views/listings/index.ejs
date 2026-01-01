@@ -52,7 +52,6 @@
   }
 </style>
 
-<!-- FILTERS -->
 <div id="filters">
   <a href="/category/trending" class="filter"><i class="fa-solid fa-fire"></i><p>Trending</p></a>
   <a href="/category/iconic-cities" class="filter"><i class="fa-solid fa-mountain-city"></i><p>Iconic cities</p></a>
@@ -76,24 +75,18 @@
   </div>
 </div>
 
-<!-- LISTINGS -->
 <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
-
   <% if (allListings && allListings.length > 0) { %>
-
     <% for (let listing of allListings) { %>
       <a href="/listings/<%= listing._id %>" class="listing-link">
         <div class="card col listing-card">
-
           <img
             src="<%= listing.image?.url || '/images/default.jpg' %>"
             class="card-img-top"
             alt="listing image"
             style="height: 20rem"
           >
-
           <div class="card-img-overlay"></div>
-
           <div class="card-body">
             <p class="card-text">
               <b><%= listing.title %></b><br>
@@ -105,19 +98,15 @@
         </div>
       </a>
     <% } %>
-
   <% } else { %>
-
     <p class="text-center mt-5 text-muted">
       No listings available.
     </p>
-
   <% } %>
 </div>
 
 <script>
   const taxSwitch = document.getElementById("tax-switch");
-
   if (taxSwitch) {
     taxSwitch.addEventListener("click", () => {
       const taxInfo = document.getElementsByClassName("tax-info");
