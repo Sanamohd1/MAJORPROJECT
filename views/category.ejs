@@ -1,0 +1,31 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="row">
+    <% if(images && images.length > 0) { %>
+      <% images.forEach(img => { %>
+        <div class="col-md-4 mb-4 mt-5">
+          <div class="card listing-card h-100">
+           <img 
+  src="<%= (img.image && img.image.url) ? img.image.url : 'https://images.unsplash.com/photo-1500382017468-9049fed747ef' %>" 
+  class="card-img-top" 
+  style="height: 20rem; object-fit: cover;" 
+  alt="<%= img.title %>"
+>
+           <div class="card-body">
+  <p class="card-text">
+    <b><%= img.title %></b> <br>
+    
+    <% if (typeof img.price !== 'undefined' && img.price !== null) { %>
+        &#8377; <%= img.price.toLocaleString("en-IN") %> / night
+    <% } else { %>
+        Price not available
+    <% } %>
+  </p>
+</div>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <p>No listings found in this category.</p>
+    <% } %>
+</div>
