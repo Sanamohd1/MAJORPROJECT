@@ -5,89 +5,126 @@
 
     <h3>Edit your Listing</h3>
 
-    <form 
-      method="POST" 
-      action="/listings/<%= listing._id %>?_method=PUT" 
-      class="needs-validation" 
-      enctype="multipart/form-data"
-      novalidate
-    >
+    <% if (listing) { %>
 
-      <div class="mb-3">
-        <label class="form-label">Title</label>
-        <input 
-          name="listing[title]" 
-          value="<%= listing.title %>" 
-          type="text" 
-          class="form-control" 
-          required 
-        />
-        <div class="invalid-feedback">Please enter a valid title</div>
-      </div>
+      <form
+        method="POST"
+        action="/listings/<%= listing._id %>?_method=PUT"
+        class="needs-validation"
+        enctype="multipart/form-data"
+        novalidate
+      >
 
-      <div class="mb-3">
-        <label class="form-label">Description</label>
-        <textarea 
-          name="listing[description]" 
-          class="form-control" 
-          required
-        ><%= listing.description %></textarea>
-        <div class="invalid-feedback">Please enter a short description</div>
-      </div>
-
-      <% if (listing.image && listing.image.url) { %>
+        <!-- TITLE -->
         <div class="mb-3">
-          Original Listing Image<br>
-          <img src="<%= originalImageUrl %>" class="img-fluid" />
-        </div>
-      <% } %>
-
-      <div class="mb-3">
-        <label class="form-label">Upload new Image</label>
-        <input 
-          name="listing[image]" 
-          type="file" 
-          class="form-control"
-        />
-      </div>
-
-      <div class="row">
-        <div class="mb-3 col-md-4">
-          <label class="form-label">Price</label>
-          <input 
-            name="listing[price]" 
-            value="<%= listing.price %>" 
-            type="text" 
-            class="form-control" 
-            required 
-          />
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="mb-3 col-md-4">
-          <label class="form-label">Country</label>
-          <input 
-            name="listing[country]" 
-            value="<%= listing.country %>" 
-            class="form-control" 
-          />
-        </div>
-
-        <div class="mb-3 col-md-8">
-          <label class="form-label">Location</label>
-          <input 
-            name="listing[location]" 
-            value="<%= listing.location %>" 
-            type="text" 
-            class="form-control" 
+          <label class="form-label">Title</label>
+          <input
+            name="listing[title]"
+            value="<%= listing.title || '' %>"
+            type="text"
+            class="form-control"
             required
           />
+          <div class="invalid-feedback">
+            Please enter a valid title
+          </div>
         </div>
-      </div>
 
-      <button class="btn btn-dark mt-3">Edit</button>
-    </form>
+        <!-- DESCRIPTION -->
+        <div class="mb-3">
+          <label class="form-label">Description</label>
+          <textarea
+            name="listing[description]"
+            class="form-control"
+            rows="4"
+            required
+          ><%= listing.description || '' %></textarea>
+          <div class="invalid-feedback">
+            Please enter a short description
+          </div>
+        </div>
+
+        <!-- EXISTING IMAGE -->
+        <% if (listing.image && listing.image.url) { %>
+          <div class="mb-3">
+            <p class="mb-1">Current Image</p>
+            <img
+              src="<%= originalImageUrl || listing.image.url %>"
+              class="img-fluid rounded"
+              alt="Listing image"
+            />
+          </div>
+        <% } %>
+
+        <!-- NEW IMAGE -->
+        <div class="mb-3">
+          <label class="form-label">Upload New Image</label>
+          <input
+            name="listing[image]"
+            type="file"
+            class="form-control"
+          />
+        </div>
+
+        <!-- PRICE -->
+        <div class="row">
+          <div class="mb-3 col-md-4">
+            <label class="form-label">Price</label>
+            <input
+              name="listing[price]"
+              value="<%= listing.price || '' %>"
+              type="number"
+              class="form-control"
+              min="0"
+              required
+            />
+            <div class="invalid-feedback">
+              Please enter a valid price
+            </div>
+          </div>
+        </div>
+
+        <!-- LOCATION -->
+        <div class="row">
+          <div class="mb-3 col-md-4">
+            <label class="form-label">Country</label>
+            <input
+              name="listing[country]"
+              value="<%= listing.country || '' %>"
+              type="text"
+              class="form-control"
+            />
+          </div>
+
+          <div class="mb-3 col-md-8">
+            <label class="form-label">Location</label>
+            <input
+              name="listing[location]"
+              value="<%= listing.location || '' %>"
+              type="text"
+              class="form-control"
+              required
+            />
+            <div class="invalid-feedback">
+              Please enter a valid location
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBMIT -->
+        <button class="btn btn-dark mt-3">
+          Save Changes
+        </button>
+
+      </form>
+
+    <% } else { %>
+
+      <p class="text-danger mt-4">
+        Listing not found.
+      </p>
+
+    <% } %>
 
   </div>
 </div>

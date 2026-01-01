@@ -1,21 +1,17 @@
 const express = require("express");
 const router = express.Router();
-
 const wrapAsync = require("../utils/wrapAsync");
-const {
-  isLoggedIn,
-  isOwner,
-  validateListing,
-} = require("../middleware");
 
+// ✅ IMPORT CONTROLLER FIRST (Line 6)
 const listingController = require("../controllers/listings");
 
 const multer = require("multer");
 const { storage } = require("../cloudConfig");
 const upload = multer({ storage });
+const { isLoggedIn, isOwner, validateListing } = require("../middleware");
 
 /* =========================
-   INDEX + CREATE
+   INDEX + CREATE ROUTES
 ========================= */
 router
   .route("/")
@@ -28,16 +24,19 @@ router
   );
 
 /* =========================
-   NEW
+   NEW FORM ROUTE
 ========================= */
-router.get(
-  "/new",
-  isLoggedIn,
-  listingController.renderNewForm
-);
+router.get("/new", isLoggedIn, listingController.renderNewForm);
 
 /* =========================
-   SHOW + UPDATE + DELETE
+   CATEGORY ROUTE
+   (Now it works because listingController is defined above!)
+========================= */
+router.get("/category/:type", wrapAsync(listingController.filterListings));
+
+/* =========================
+   SHOW + UPDATE + DELETE ROUTES
+   (These must be at the bottom because /:id captures everything)
 ========================= */
 router
   .route("/:id")
@@ -56,7 +55,7 @@ router
   );
 
 /* =========================
-   EDIT
+   EDIT FORM ROUTE
 ========================= */
 router.get(
   "/:id/edit",
@@ -64,7 +63,5 @@ router.get(
   isOwner,
   wrapAsync(listingController.renderEditForm)
 );
-
-router.get("/category/:type", listingController.filterListings);
 
 module.exports = router;
