@@ -134,5 +134,18 @@ body {
 
 #map{
     height: 400px;
-    width: 80vh;
+    width: 95vh;
+}
+/* Mobile specific changes (Small screens) */
+@media (max-width: 768px) {
+    #map {
+        height: 300px; /* Shorter for mobile */
+        width: 100%;   /* Fully responsive width */
+    }
+}
+
+@media (max-width: 480px) {
+    #map {
+        height: 250px; /* Even smaller for tiny phones */
+    }
 }
