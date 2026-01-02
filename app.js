@@ -1,9 +1,6 @@
-// if (process.env.NODE_ENV !== "production") {
-//     require("dotenv").config();
-// }
-require("dotenv").config();
-console.log("DEBUG: SECRET value is:", process.env.SECRET);
-console.log("DEBUG: SECRET type is:", typeof process.env.SECRET);
+if (process.env.NODE_ENV !== "production") {
+    require("dotenv").config();
+}
 
 const express = require("express");
 const app = express();
@@ -30,14 +27,10 @@ const categoryRoutes = require("./routes/category.js");
 // ENV VALIDATION
 // =====================
 const dbUrl = process.env.ATLASDB_URL;
-const sessionSecret = process.env.SECRET;
+const SESSION_SECRET = process.env.SECRET || "dev-secret-change-this-in-production";
 
 if (!dbUrl) {
     throw new Error("ATLASDB_URL is missing in environment variables");
-}
-
-if (!sessionSecret) {
-    throw new Error("SECRET is missing in environment variables");
 }
 
 // =====================
@@ -54,20 +47,18 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // =====================
 // START SERVER (ASYNC SAFE)
+// =====================
 async function startServer() {
     try {
-        // 1. Connect to Atlas first
+        // 1. Connect to MongoDB first
         await mongoose.connect(dbUrl);
-        console.log("Connected to MongoDB Atlas");
+        console.log(" Connected to MongoDB Atlas");
 
-        // 2. Configure Store with an immediate string fallback
-        // This prevents the 'null (reading length)' error during the internal tick
+        // 2. Create MongoStore AFTER connection is established
         const store = MongoStore.create({
             mongoUrl: dbUrl,
-            crypto: {
-                secret: process.env.SECRET || "nopasswordprovided", 
-            },
-            touchAfter: 24 * 3600,
+            touchAfter: 24 * 3600, // 24 hours
+            collectionName: 'sessions' // explicit collection name
         });
 
         store.on("error", (err) => {
@@ -75,49 +66,69 @@ async function startServer() {
         });
 
         // 3. Session Middleware
-        app.use(
-            session({
-                store: store,
-                secret: process.env.SECRET || "nopasswordprovided",
-                resave: false,
-                saveUninitialized: false,
-                cookie: {
-                    httpOnly: true,
-                    expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-                    maxAge: 7 * 24 * 60 * 60 * 1000,
-                },
-            })
-        );
+        app.set("trust proxy", 1);
 
+        const sessionConfig = {
+            store: store,
+            name: 'session', // change default session cookie name
+            secret: SESSION_SECRET,
+            resave: false,
+            saveUninitialized: false,
+            cookie: {
+                httpOnly: true,
+                maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+                secure: process.env.NODE_ENV === "production", // true in production
+                sameSite: "lax",
+            },
+        };
+
+        app.use(session(sessionConfig));
         app.use(flash());
 
-        // ... (Passport and Routes go here) ...
-
+        // 4. Passport Configuration
         app.use(passport.initialize());
-app.use(passport.session());
-passport.use(new LocalStrategy(User.authenticate()));
+        app.use(passport.session());
+        passport.use(new LocalStrategy(User.authenticate()));
+        passport.serializeUser(User.serializeUser());
+        passport.deserializeUser(User.deserializeUser());
 
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+        // 5. Flash Messages Middleware
+        app.use((req, res, next) => {
+            res.locals.currUser = req.user;
+            res.locals.success = req.flash("success");
+            res.locals.error = req.flash("error");
+            next();
+        });
 
-// This middleware makes 'currUser' available in ALL EJS files
-app.use((req, res, next) => {
-    res.locals.success = req.flash("success");
-    res.locals.error = req.flash("error");
-    res.locals.currUser = req.user; // This is what isOwner and isReviewAuthor use!
-    next();
-});
+        // 6. Routes
+        app.use("/listings", listingRouter);
+        app.use("/listings/:id/reviews", reviewRouter);
+        app.use("/", userRouter);
+        app.use("/:category", categoryRoutes);
 
-        app.all("*path", (req, res) => {
+        // 7. Home Route
+        app.get("/", (req, res) => {
             res.redirect("/listings");
         });
 
+        // 8. Catch-all Route
+        app.all("*path", (req, res, next) => {
+            next(new ExpressError(404, "Page Not Found!"));
+        });
+
+        // 9. Error Handler
+        app.use((err, req, res, next) => {
+            let { statusCode = 500, message = "Something went wrong!" } = err;
+            res.status(statusCode).render("error.ejs", { message });
+        });
+
+        // 10. Start Server
         app.listen(8080, () => {
-            console.log("Server running on port 8080");
+            console.log("Server running on http://localhost:8080");
         });
 
     } catch (err) {
-        console.error("Startup error:", err);
+        console.error(" Startup error:", err);
         process.exit(1);
     }
 }
