@@ -1,12 +1,12 @@
 <style>
 .search-btn{
-  background-color: #fe424d;
+  background-color: #ce555d;
   color: #fff;
   border-radius: 25px;
   padding: 0 1rem 0 1rem;
 }
 .search-btn hover{
- background-color: #fe424d;
+ background-color: #ce555d;
   color: #fff;
 }
 .search-btn i{
@@ -18,11 +18,77 @@
   padding: 0.5rem 3rem 0.5rem 3rem;
  font-size: 1rem;
 }
+
+.navbar-nav .nav-link {
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 8px 16px;
+  margin: 4px 8px;
+  border-radius: 20px;
+  color: #222 !important;
+  font-weight: 400;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  backdrop-filter: blur(10px);
+}
+
+.navbar-nav .nav-link:hover {
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.navbar-nav .nav-link b {
+  font-weight: 700;
+  font-size: 14px;
+  color: #ce555d;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 780px) {
+  .navbar-collapse {
+    background-color: rgba(255, 255, 255, 0.98);
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  
+  .navbar-nav {
+    margin-bottom: 10px;
+  }
+  
+  .navbar-nav .nav-link {
+    background-color: white;
+    margin: 8px 0;
+    text-align: center;
+    width: 100%;
+  }
+  
+  .d-flex {
+    flex-direction: column;
+    width: 100%;
+    margin: 10px 0;
+  }
+  
+  .search-inp {
+    width: 100%;
+    margin-bottom: 10px;
+    margin-right: 0 !important;
+  }
+  
+  .search-btn {
+    width: 100%;
+  }
+  
+  .ms-auto {
+    margin-left: 0 !important;
+  }
+}
+  
 </style>
 
 <nav class="navbar navbar-expand-md bg-body-light border-bottom sticky-top">
   <div class="container-fluid">
-    <a class="navbar-brand" href="/listings"><i class="fa-regular fa-compass"></i></a>
+    <a class="navbar-brand" href="/listings"><i class="fa-brands fa-bluesky"></i></a>
+    <a class="nav-link" style="font-size: 1.25rem;" href="/listings"><b>Sojourna</b></a>
     <button class="navbar-toggler" 
     type="button" 
     data-bs-toggle="collapse" 
@@ -32,7 +98,7 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="nav-link" href="/listings">Explore</a>
+        
       </div>
 
     <div class="navbar-nav  ms-auto">

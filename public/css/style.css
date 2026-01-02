@@ -14,13 +14,14 @@ body {
     background-color: white;
 }
 
-.fa-compass {
-    color: #fe424d;
+.fa-bluesky {
+    color: #ce555d;
     font-size: 2rem;
 }
 
 .nav-link {
-    color: #222222 !important;
+    color: #ce555d!important;
+    
 }
 
 .f-info-links a {
@@ -124,7 +125,7 @@ body {
 .add-btn,
 
 .edit-btn.btn-dark {
-    background-color: #fe424d !important;
+    background-color: #ce555d !important;
     border: none !important;
     margin-right: 20px;
     width: 10%;
