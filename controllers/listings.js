@@ -153,14 +153,16 @@ module.exports.destroyListing = async (req, res) => {
    8. CATEGORY FILTER
 ============================ */
 module.exports.filterListings = async (req, res) => {
-    const { type } = req.params;
+    try {
+        const { type } = req.params;
 
-    const allListings = await Listing.find({ category: type });
+        const images = await Image.find({ category: type });
 
-    if (allListings.length === 0) {
-        req.flash("error", "No listings found for this category");
-        return res.redirect("/listings");
+        console.log(images); // debug
+
+        res.render("listings/category.ejs", { images });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Internal Server Error");
     }
-
-    return res.render("listings/index.ejs", { allListings });
 };

@@ -1,6 +1,9 @@
-if (process.env.NODE_ENV !== "production") {
-    require("dotenv").config();
-}
+// if (process.env.NODE_ENV !== "production") {
+//     require("dotenv").config();
+// }
+require("dotenv").config();
+console.log("DEBUG: SECRET value is:", process.env.SECRET);
+console.log("DEBUG: SECRET type is:", typeof process.env.SECRET);
 
 const express = require("express");
 const app = express();
@@ -51,32 +54,31 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // =====================
 // START SERVER (ASYNC SAFE)
-// =====================
 async function startServer() {
     try {
-        // Connect DB
-        const mongooseConnection = await mongoose.connect(dbUrl);
+        // 1. Connect to Atlas first
+        await mongoose.connect(dbUrl);
+        console.log("Connected to MongoDB Atlas");
 
-        console.log("Connected to MongoDB");
-
-        // Session Store
+        // 2. Configure Store with an immediate string fallback
+        // This prevents the 'null (reading length)' error during the internal tick
         const store = MongoStore.create({
-    client: mongooseConnection.connection.getClient(),
-    crypto: {
-        secret: sessionSecret,
-    },
-    touchAfter: 24 * 3600,
-});
+            mongoUrl: dbUrl,
+            crypto: {
+                secret: process.env.SECRET || "nopasswordprovided", 
+            },
+            touchAfter: 24 * 3600,
+        });
 
-        store.on("error", err => {
+        store.on("error", (err) => {
             console.error("Mongo session store error:", err);
         });
 
-        // Session Middleware
+        // 3. Session Middleware
         app.use(
             session({
-                store,
-                secret: sessionSecret,
+                store: store,
+                secret: process.env.SECRET || "nopasswordprovided",
                 resave: false,
                 saveUninitialized: false,
                 cookie: {
@@ -89,58 +91,27 @@ async function startServer() {
 
         app.use(flash());
 
-        // =====================
-        // PASSPORT CONFIG
-        // =====================
+        // ... (Passport and Routes go here) ...
+
         app.use(passport.initialize());
-        app.use(passport.session());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
 
-        passport.use(new LocalStrategy(User.authenticate()));
-        passport.serializeUser(User.serializeUser());
-        passport.deserializeUser(User.deserializeUser());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
-        // =====================
-        // GLOBAL LOCALS
-        // =====================
-        app.use((req, res, next) => {
-            res.locals.success = req.flash("success");
-            res.locals.error = req.flash("error");
-            res.locals.currUser = req.user || null;
-            next();
-        });
-
-        // =====================
-        // ROUTES
-        // =====================
-        app.use("/listings", listingRouter);
-        app.use("/listings/:id/reviews", reviewRouter);
-        app.use("/category", categoryRoutes);
-        app.use("/", userRouter);
-
-        // =====================
-        // 404 HANDLER
-        // =====================
-       app.all("*path", (req, res) => {
-    res.redirect("/listings"); 
+// This middleware makes 'currUser' available in ALL EJS files
+app.use((req, res, next) => {
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    res.locals.currUser = req.user; // This is what isOwner and isReviewAuthor use!
+    next();
 });
 
-        // =====================
-        // GLOBAL ERROR HANDLER
-        // =====================
-        app.use((err, req, res, next) => {
-            console.error(err);
-
-            if (res.headersSent) {
-                return next(err);
-            }
-
-            const { statusCode = 500, message = "Something went wrong" } = err;
-            res.status(statusCode).render("error.ejs", { message });
+        app.all("*path", (req, res) => {
+            res.redirect("/listings");
         });
 
-        // =====================
-        // LISTEN
-        // =====================
         app.listen(8080, () => {
             console.log("Server running on port 8080");
         });
