@@ -1,5 +1,7 @@
 const Listing = require("../models/listing");
-
+const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
+const mapToken = process.env.MAP_TOKEN;
+const geocodingClient = mbxGeocoding({ accessToken: mapToken });
 /* ============================
    1. INDEX ROUTE
 ============================ */
@@ -66,14 +68,50 @@ module.exports.createListing = async (req, res) => {
         newListing.owner = req.user._id;
         newListing.image = { url, filename };
 
+        // ✅ ADD GEOCODING HERE
+        if (newListing.location) {
+            try {
+                const response = await geocodingClient
+                    .forwardGeocode({
+                        query: newListing.location,
+                        limit: 1,
+                    })
+                    .send();
+
+                if (response.body.features.length > 0) {
+                    newListing.geometry = response.body.features[0].geometry;
+                    
+                } else {
+                    // Fallback if location not found
+                    newListing.geometry = {
+                        type: 'Point',
+                        coordinates: [0, 0]
+                    };
+                }
+            } catch (geoErr) {
+                console.error("Geocoding error:", geoErr);
+                // Use default coordinates on geocoding failure
+                newListing.geometry = {
+                    type: 'Point',
+                    coordinates: [0, 0]
+                };
+            }
+        } else {
+            // No location provided, use default
+            newListing.geometry = {
+                type: 'Point',
+                coordinates: [0, 0]
+            };
+        }
+
         await newListing.save();
 
         req.flash("success", "New Listing Created!");
         return res.redirect("/listings");
     } catch (err) {
-        console.error(err);
+        console.error("Error creating listing:", err);
         req.flash("error", "Failed to create listing");
-        return res.redirect("/listings");
+        return res.redirect("/listings/new");
     }
 };
 
