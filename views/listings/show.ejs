@@ -101,13 +101,14 @@
     <% } %>
 
     <% if (listing.reviews && listing.reviews.length > 0) { %>
-      <div class="row">
+      <div class="row card-container">
         <p><b>All Reviews</b></p>
 
         <% for (let review of listing.reviews) { %>
-          <div class="card col-5 ms-3 mb-3">
-            <div class="card-body">
-              <h5 class="card-title">
+ <div class="card col-12 col-sm-6 col-md-5 mb-3">
+
+            <div class="card-body ms-3 mb-3">
+              <h5 class="card-title review-username mt-3">
                 @<%= review.author?.username || "Anonymous" %>
               </h5>
 

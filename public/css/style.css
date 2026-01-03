@@ -122,14 +122,58 @@ body {
     height: 30vh; 
     object-fit: cover;
 }
-.add-btn,
+/* 1. The Container: Aligns both buttons to the start of the text above */
+.btns-container {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 15px !important;    /* Creates even spacing between Edit and Delete */
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+  align-items: center;     /* Centers them vertically */
+}
 
+/* 2. The Edit Button: Matches the look and feel of Delete */
 .edit-btn.btn-dark {
-    background-color: #ce555d !important;
-    border: none !important;
-    margin-right: 20px;
-    width: 10%;
-    margin-left: -10px;
+  background-color: #ce555d !important;
+  border: none !important;
+  width: auto !important;          
+  min-width: 90px !important;      
+  margin: 0 !important;           
+  padding: 8px 20px !important;
+  white-space: nowrap !important;  
+  text-align: center;
+}
+
+/* 3. The Delete Button: Ensures it matches the Edit button height */
+.delete-btn {
+  padding: 8px 20px !important;
+  min-width: 90px !important;
+  white-space: nowrap !important;
+}
+
+/* 4. The Form: Stops the form from adding extra block-level spacing */
+.btns-container form {
+  margin: 0 !important;
+  display: inline-flex;
+}
+
+
+.review-username {
+  font-size: 0.9rem;     
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+@media (max-width: 576px) {
+  .review-username {
+    font-size: 0.8rem;
+  }
+}
+
+
+.card-container {
+  display: flex; /* or grid */
+  gap: 20px;    
+  padding-bottom: 20px;
 }
 
 #map{
@@ -139,13 +183,17 @@ body {
 /* Mobile specific changes (Small screens) */
 @media (max-width: 768px) {
     #map {
-        height: 300px; /* Shorter for mobile */
-        width: 100%;   /* Fully responsive width */
+        height: 300px; 
+        width: 100%;   
     }
 }
 
 @media (max-width: 480px) {
     #map {
-        height: 250px; /* Even smaller for tiny phones */
+        height: 250px; 
     }
 }
+
+
+
+ 
